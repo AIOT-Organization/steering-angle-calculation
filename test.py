@@ -5,13 +5,13 @@ import utils
 curveList = []
 avgVal = 10
 def getLaneCurve(img, display=2):
-    imgThresh = utils.thresholding(img)
+    height, width, channels = img.shape
+    points, lower, upper = utils.valTrackbars()
+
+    imgThresh = utils.thresholding(img, lower, upper)
     imageWarpCopy = img.copy()
     imgResult = img.copy()
     
-
-    height, width, channels = img.shape
-    points = utils.valTrackbars()
     imgWarp = utils.warping(imgThresh, points, width, height)
     imgWarpPoints = utils.drawPoints(imageWarpCopy, points)
 
@@ -24,7 +24,6 @@ def getLaneCurve(img, display=2):
         curveList.pop(0)
 
     curve = int(sum(curveList)/len(curveList))
-    print(curve)
 
     if display != 0:
        imgInvWarp = utils.warping(imgWarp, points, width, height, inverse=True)
@@ -52,15 +51,15 @@ def getLaneCurve(img, display=2):
        cv2.imshow('Resutlt',imgResult)
 
 
-    cv2.imshow('Thresholding', imgThresh)
-    cv2.imshow('Warp', imgWarp)
-    cv2.imshow('Points', imgWarpPoints)
-    cv2.imshow('Histogram', imgHst_base)
+    # cv2.imshow('Thresholding', imgThresh)
+    # cv2.imshow('Warp', imgWarp)
+    # cv2.imshow('Points', imgWarpPoints)
+    # cv2.imshow('Histogram', imgHst_base)
     return curve
 
 
 if __name__ == '__main__':
-    cap = cv2.VideoCapture('v3.mp4')
+    cap = cv2.VideoCapture('data1.mp4')
     initials = [149, 179, 30, 240]
     utils.initializeTrackbars(initials)
     frameCounter = 0
@@ -77,5 +76,5 @@ if __name__ == '__main__':
         img = cv2.resize(img, (480, 240))
         getLaneCurve(img)
 
-        cv2.imshow('Video Feed', img)
+        # cv2.imshow('Video Feed', img)
         cv2.waitKey(200)

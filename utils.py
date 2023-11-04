@@ -4,7 +4,7 @@ import numpy as np
 def empty(a):
     pass
 
-def thresholding(img):
+def thresholding(img, lowerThresh, upperThresh):
     imgHsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
     '''
@@ -12,8 +12,6 @@ def thresholding(img):
     78, 15, 0
     120, 255, 129
     '''
-    lowerThresh = np.array([114, 0, 156])
-    upperThresh = np.array([179, 255, 255])
     mask = cv2.inRange(imgHsv, lowerThresh, upperThresh)
     return mask
 
@@ -83,12 +81,20 @@ def stackImages(scale,imgArray):
 
 def initializeTrackbars(initialTrackbarVars, w=480, h=240):
     cv2.namedWindow("Trackbars")
-    cv2.resizeWindow("Trackbars", 360, 240)
-
+    cv2.resizeWindow("Trackbars", w, h)
     cv2.createTrackbar("Width Top", "Trackbars", initialTrackbarVars[0], w//2, empty)
     cv2.createTrackbar("Height Top", "Trackbars", initialTrackbarVars[1], h, empty)
     cv2.createTrackbar("Width Bottom", "Trackbars", initialTrackbarVars[2], w//2, empty)
     cv2.createTrackbar("Height Bottom", "Trackbars", initialTrackbarVars[3], h, empty)
+
+    cv2.namedWindow("HSV")
+    cv2.resizeWindow("HSV", w, h)
+    cv2.createTrackbar("Hue Min", "HSV", 0, 179, empty)
+    cv2.createTrackbar("Hue Max", "HSV", 179, 179, empty)
+    cv2.createTrackbar("Sat Min", "HSV", 0, 255, empty)
+    cv2.createTrackbar("Sat Max", "HSV", 255, 255, empty)
+    cv2.createTrackbar("Value Min", "HSV", 0, 255, empty)
+    cv2.createTrackbar("Value Max", "HSV", 255, 255, empty)
 
 def valTrackbars(w=480, h=240):
     widthTop = cv2.getTrackbarPos("Width Top", "Trackbars")
@@ -99,7 +105,16 @@ def valTrackbars(w=480, h=240):
     points = np.float32([(widthTop, heightTop), (w-widthTop, heightTop),
                          (widthBot, heightBot), (w-widthBot, heightBot)
                          ])
-    return points
+    
+    h_min = cv2.getTrackbarPos("Hue Min", "HSV")
+    h_max = cv2.getTrackbarPos("Hue Max", "HSV")
+    s_min = cv2.getTrackbarPos("Sat Min", "HSV")
+    s_max = cv2.getTrackbarPos("Sat Max", "HSV")
+    v_min = cv2.getTrackbarPos("Value Min", "HSV")
+    v_max = cv2.getTrackbarPos("Value Max", "HSV")
+    lowerThresh = np.array([h_min, s_min, v_min])
+    upperThresh = np.array([h_max, s_max, v_max])
+    return points, lowerThresh, upperThresh
 
 def drawPoints(img, points):
     for x in range(4):
